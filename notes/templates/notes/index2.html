@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>ProcrastiStop</title>
+    </head>
+    <style>
+        .bg-body {
+            /*background-color: rgb(45, 42, 53);*/
+            background-color: #181818;
+        }
+        .header {
+            background-color: #494949; /*rgb(73, 73, 75);*/
+            padding: 20px;
+            height: 50px;
+            line-height: 10px;
+            text-align: center;
+            border-radius: 5px;
+            
+        }
+        h1 {
+            /*font-family: Arial, Helvetica, sans-serif;*/
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+            font: bold;
+            /*font-size: large;*/
+            color: rgb(245, 129, 4);
+        }
+        .listbox {
+            width: 100%;
+            height: 250px;
+            overflow: auto;
+            justify-content: center;
+            display: flex;
+        }
+        .child {
+            float: left;
+            background-color: #494949;
+            width: 33%;
+            height: dynamic;
+            margin: 2px;
+            padding: .5%;
+            border-radius: 5px;
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+        }
+        #h-child {
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+            font: bold;
+            font-size: large;
+            color: rgb(245, 129, 4);
+        }
+        .grid-container {
+            width: 100%;
+            display: table;
+            /*float: left;*/
+        }
+        table {
+            margin:0 auto;
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif
+        }
+        th {
+            color: rgb(245, 129, 4);
+        }
+        a:link{
+            color: rgb(245, 129, 4);
+            text-decoration: None;
+            
+        }
+        a:visited {
+            color: rgb(245, 129, 4);
+            /*background-color: transparent;
+            text-decoration: none;*/
+        }
+        input, select, textarea{
+            color: rgb(245, 129, 4);
+        }
+
+        textarea:focus, input:focus {
+            color: rgb(245, 129, 4);
+        }
+        button {
+            background-color: rgb(162, 169, 169);
+            border-color: black;
+            border: none;
+            outline-color: black;
+            color: black;
+            border-radius: 5px;
+        }
+
+    </style>
+    <script>
+        function showButton() {
+          document.getElementById("create-note-button").style.display = "block";
+        }
+      
+        function hideButton() {
+          document.getElementById("create-note-button").style.display = "none";
+        }
+        function checkKey(event) {
+            if (event.keyCode === 13) { // 13 is the keycode for Enter key
+            createItem();
+            }
+        }
+        
+        
+        function createItem() {
+            hideButton()
+            // Get the text entered by the user
+            const text = document.getElementById("my-textfield").value;
+            
+            // Create a new form element
+            const form = document.createElement("form");
+            form.setAttribute("method", "POST");
+            //form.setAttribute("action", "google.com");
+            form.setAttribute("action", "{% url 'note added' %}");
+            
+            // Add a hidden input field with the text value
+            const input1 = document.createElement("input");
+            input1.setAttribute("type", "hidden");
+            input1.setAttribute("name", "note");
+            input1.setAttribute("id", "note");
+            input1.setAttribute("value", text);
+            form.appendChild(input1);
+
+            var input2 = document.createElement('input');
+            input2.type = 'hidden';
+            input2.name = 'csrfmiddlewaretoken';
+            input2.value = '{{ csrf_token }}';
+            form.appendChild(input2)
+
+            // Submit the form and navigate to the other page
+            document.body.appendChild(form);
+            form.submit();
+        }
+        // Add event listener for mouse click on the "Create" button
+        // This shows an Uncaught TypeError, because the element "create-note-bottom" does not right now exist
+        // BUT, it does work just fine... I dunno atm
+        document.getElementById("create-note-button").addEventListener("click", createItem());
+      </script>
+    <body class="bg-body">
+        <div class="header">
+            <h1>ProcrastiStop</h1>
+        </div>
+        <div class="listbox">
+            <div class="child">
+                <h2 id="h-child">ToDo</h2>
+                {% if notes_todo %}
+                    <ul>
+                    {% for note in notes_todo %}
+                        <li>
+                            <form action="{% url 'move note' %}" method='POST'>
+                                {% csrf_token %}
+                                <a href="{% url 'details' note.id %}">{{ note.note_text }} </a>
+                                <button type='submit' name="move_right_btn" value={{note.id}}>&gt;</button>
+                                <button type="submit" name="delete" value={{note.id}}>del</button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                    </ul>
+                {% else %}
+                    <p style="color:rgb(245, 129, 4)">No notes to do are available.</p>
+                {% endif %}
+                <ul>
+                    <li>
+                      <input type="text" id="my-textfield" onfocus="showButton()"  placeholder="Enter text..." 
+                      style="background-color: inherit; border: none; border-bottom: 1px solid black;" onkeyup="checkKey(event)"> <!--onblur="hideButton()"-->
+                      <button id="create-note-button" style="display: none;" onclick="createItem()">Create</button>
+                    </li>
+                  </ul>
+                <button onclick="window.location.href='start_day';">
+                    Start Day!
+                </button>
+            </div>
+            <div class="child">
+                <h2 id="h-child">Doing</h2>
+                {% if notes_doing %}
+                    <ul>
+                    {% for note in notes_doing %}
+                        <li>
+                            <form action="{% url 'move note' %}" method='POST'>
+                                {% csrf_token %}
+                                <a href="{% url 'details' note.id %}">{{ note.note_text }}</a>
+                                <button type='submit' name="move_left_btn" value={{note.id}}>&lt;</button>
+                                <button type='submit' name="move_right_btn" value={{note.id}}>&gt;</button>
+                                <button type="submit" name="delete" value={{note.id}}>del</button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                    </ul>
+                {% else %}
+                    <p style="color:rgb(245, 129, 4)">No notes you are working on currently.</p>
+                {% endif %}
+                <!--<button onclick="window.location.href='add_note_doing';">
+                    Add Note!
+                </button>-->
+            </div>
+            <div class="child">
+                <h2 id="h-child">Done</h2>
+                {% if notes_done %}
+                    <ul>
+                    {% for note in notes_done %}
+                    <form action="{% url 'move note' %}" method='POST'>
+                        {% csrf_token %}
+                        <a href="{% url 'details' note.id %}">{{ note.note_text }}</a>
+                        <button type='submit' name="move_left_btn" value={{note.id}}>&lt;</button>
+                        <button type='submit' name="move_right_btn" value={{note.id}}>&gt;</button>
+                        <button type="submit" name="delete" value={{note.id}}>del</button>
+                    </form>
+                    {% endfor %}
+                    </ul>
+                {% else %}
+                    <p style="color:rgb(245, 129, 4)">No done notes are available.</p>
+                {% endif %}
+                <button onclick="window.location.href='end_day';">
+                    End Day!
+                </button>
+                <button onclick="window.location.href='clear_day';">
+                    Clear Day!
+                </button>
+            </div>  
+        </div>
+        <div class="grid-container">
+            <table border=1>
+                {% if weeks %}
+                <tr>
+                    <th>I</th>
+                    <th>II</th>
+                    <th>III</th>
+                    <th>IV</th>
+                    <th>V</th>
+                    <th>VI</th>
+                    <th>VII</th>
+                </tr>
+                    {% for key, value in weeks.items %}
+                    <tr>
+                    <!--<div class="grid-row"> -->
+                        {% for element in value %}
+                        <!--<td>{{element}}</td>-->
+                            {% if element >= 100 %}<td bgcolor="green" style="width: 20px;height: 20px">{{ "" }}</td>
+                            {% elif element >= 50 %}<td bgcolor="orange" style="width: 20px;height: 20px">{{ ""}}</td>
+                            {% elif element < 50 %}<td bgcolor="red" style="width: 20px;height: 20px">{{ ""}}</td>
+                            {% endif %}
+                        <!--<div class="grid-cell">{{ element }}</div> -->
+                        {% endfor %}
+                    <!--</div>-->
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                <p>Nothing here</p>
+                {% endif %}
+                
+            </table>
+        </div>          
+    </body>
+</html>

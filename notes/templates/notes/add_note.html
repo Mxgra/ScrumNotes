@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Scrum Notes</title>
+    </head>
+    <style>
+        .Textfield {
+            background-color: rgb(73, 73, 75);
+            width: 33%;
+            height: dynamic;
+            margin: 2px;
+            padding: .5%;
+            border-radius: 5px;
+        }
+        #note {
+            height: 100px;
+            width: 80%;
+            text-align: start;
+        }
+    </style>
+    <body>
+        <div class="Textfield">
+            <form action="{% url 'note added' %}" method="post">
+                {% csrf_token %}
+                <label color="orange" for="note">Note:</label>
+                <input type="text" id="note" name="note">
+                <input type="submit" value="create">
+            </form>
+            <p><input type=button value="Go Back" onClick="javascript:history.go(-1);"></p>
+        </div>
+    </body>
+</html>

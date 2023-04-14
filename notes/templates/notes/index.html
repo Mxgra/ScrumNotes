@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Scrum Notes</title>
+    </head>
+    <body>
+        <button onclick="window.location.href='add_note';">
+            Add Note!
+        </button>
+        {% if notes_todo %}
+            <ul>
+            {% for note in notes_todo %}
+                <li><a href="{% url 'detail' note.id %}">{{ note.note_text }}</a></li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No notes to do are available.</p>
+        {% endif %}
+
+        {% if notes_doing %}
+            <ul>
+            {% for note in notes_doing %}
+                <li><a href="{% url 'detail' note.id %}">{{ note.note_text }}</a></li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No notes you are working on currently.</p>
+        {% endif %}
+        {% if notes_done %}
+            <ul>
+            {% for note in notes_done %}
+                <li><a href="{% url 'detail' note.id %}">{{ note.note_text }}</a></li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No done notes are available.</p>
+        {% endif %}
+    </body>
+</html>

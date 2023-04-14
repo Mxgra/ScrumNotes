@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>This is the note {{note_id}}</title>
+  </head>
+  <body>
+    <div style="background-color: grey; padding: 10px;">
+      <h1>This is the note {{note_id}}</h1>
+    </div>
+    <div style="background-color: grey; padding: 10px;">
+      <p id="description">{{description}}</p>
+      <button id="edit" onclick="makeEditable()">Edit</button>
+      <form action="{% url 'safe description' note_id %}" method='POST' id="editForm" style="display:none;">
+        {% csrf_token %}
+        <textarea class="longInput" cols="30" rows="10" id="editDescription" name="editDescription"></textarea>
+        <button type="submit" id="safe" value=description>Safe</button>
+      </form>
+    </div>
+    <button id="goBack" onclick="window.location.href='/notes/';">Go Back</button>
+    <script>
+      function makeEditable() {
+        var description = document.getElementById("description");
+        var editButton = document.getElementById("edit");
+        var editForm = document.getElementById("editForm");
+        var editDescription = document.getElementById("editDescription");
+        var safeButton = document.getElementById("safe");
+        description.style.display = "none";
+        editDescription.value = description.innerText;
+        editButton.style.display = "none";
+        editForm.style.display = "inline-block";
+        safeButton.style.display = "inline-block";
+      }
+
+      function makeUneditable() {
+        var description = document.getElementById("description");
+        var editButton = document.getElementById("edit");
+        var editForm = document.getElementById("editForm");
+        var safeButton = document.getElementById("safe");
+        description.style.display = "block";
+        description.innerText = editForm.editDescription.value;
+        editButton.style.display = "inline-block";
+        editForm.style.display = "none";
+        safeButton.style.display = "none";
+      }
+
+      document.getElementById("editForm").addEventListener("submit", function(event) {
+        /* event.preventDefault(); */
+        makeUneditable();
+      });
+    </script>
+  </body>
+</html>
